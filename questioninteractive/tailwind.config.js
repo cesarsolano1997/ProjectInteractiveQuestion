@@ -3,14 +3,14 @@ module.exports = {
   darkMode: false, // or 'media' or 'class'
   theme: {
     screens: {
-      'mobile': {'max' : '450px'}
+      mobile: { max: '450px' },
     },
     extend: {},
   },
   variants: {
     extend: {
       opacity: ['disabled'],
-      cursor: ['disabled']
+      cursor: ['disabled'],
     },
   },
   plugins: [],

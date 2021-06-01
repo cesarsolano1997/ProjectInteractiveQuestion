@@ -1,50 +1,49 @@
-// const express = require('express')
-// const sokectIO = require('socket.io') // Configuration sokectio
-// const http = require('http')
+require("./config");
+const mongoose = require("mongoose");
+const express = require("express");
+const io = require("socket.io"); // Configuration sokectio
+const http = require("http");
+const bodyParser = require("body-parser");
 
-// const app = express()
+const app = express();
 
-// const cors = require('cors')
-// // app.use(cors("http://localhost:3000"))
+const cors = require("cors");
 
-// let server = http.createServer(app)
+app.use(
+  cors({
+    origin: "*",
+  })
+);
 
-// require('./config')
-// require('./routes')
+let server = http.createServer(app);
 
-// // Configuration global routes
-// app.use(require('./routes/index'))
+app.use(express.json({ extended: true }));
 
-// module.exports.io = sokectIO(server, {
-//     cors: {
-// 		origin: "http://localhost:3000/",
-// 		methods: ["GET", "POST"]
-// 	  }
-// })
-// require('./sockets/socket')
+require("./config");
+require("./routes");
 
-// server.listen(process.env.PORT, (err) => {
+// Configuration global routes
+app.use(require("./routes/index"));
 
-//     if (err) throw new Error(err);
-
-//     console.log(`Servidor corriendo en puerto ${ process.env.PORT }`);
-
-// });
-
-const app = require('express')
-const server = require("http").createServer(app);
-const io = require("socket.io")(server, {
-        cors: {
-    		origin: "http://localhost:3000/",
-    		methods: ["GET", "POST"]
-    	  }
-})
-
-io.on("connection", (socket) => {
-    console.log("Nuevo usuario  ",socket.id)
-    socket.on("sendMessage", data => {
-        console.log("Dato",data)
-    })
+module.exports.io = io(server, {
+  cors: {
+    origin: "http://localhost:3000/",
+    methods: ["GET", "POST"],
+  },
 });
+require("./sockets/socket");
 
-server.listen(8000);
+mongoose.connect(
+  process.env.URLDB,
+  { useNewUrlParser: true, useUnifiedTopology: true },
+  (err, res) => {
+    if (err) throw err;
+    console.log("Conectado a MongoDB");
+  }
+);
+
+server.listen(process.env.PORT, (err) => {
+  if (err) throw new Error(err);
+
+  console.log(`Servidor corriendo en puerto ${process.env.PORT}`);
+});

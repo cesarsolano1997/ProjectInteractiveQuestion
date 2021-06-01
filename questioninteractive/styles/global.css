@@ -2,8 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Roboto regular';
+  src: url('/assets/font/Roboto-Regular.ttf') format('truetype');
+}
+
 @layer base {
-    body {
-        font-family: 'Menlo,ui-monospace,SFMono-Regular,Monaco,Consolas,Liberation Mono,Courier New,monospace;'
-    }
+  body,
+  button,
+  input,
+  select,
+  textarea {
+    font-family: Roboto regular, serif;
+  }
 }

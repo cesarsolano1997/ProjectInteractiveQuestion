@@ -1,23 +1,55 @@
-import { useEffect, useState } from "react";
-import {io} from "socket.io-client";
+import { useEffect, useState } from 'react'
+import { io } from 'socket.io-client'
 
-const socket = io('http://localhost:8000', {transports : ['websocket']})
+const socket = io('http://localhost:4002', {
+  transports: ['websocket'],
+  auth: { username: 'default' },
+  autoConnect: false,
+  // connected: false,
+})
 
-export default function useSocket(cb) {
-	const [activeSocket, setActiveSocket] = useState(null);
+export default function useSocket(userName) {
+  const [activeSocket, setActiveSocket] = useState(null)
+  // const [sessionID, setSessionID] = useState(null)
 
-	useEffect(() => {
-		// debug("Socket updated", { socket, activeSocket });
-		if (activeSocket || !socket) return;
-		cb && cb(socket);
-		setActiveSocket(socket);
-		console.log('Activando socket')
-		return function cleanup() {
-			// debug("Running useSocket cleanup", { socket });
-			socket.off("message.chat1", cb);
-		};
-	
-	}, [socket]);
+  // socket.auth.username = userName
 
-	return activeSocket;
+  socket.auth.username = userName
+
+  useEffect(() => {
+    socket.connect()
+    socket.on('connect', () => {
+      setActiveSocket(socket)
+    })
+
+    socket.connect()
+
+    setActiveSocket(socket) //
+    socket.on('session', ({ sessionID, userID }) => {
+      // attach the session ID to the next reconnection attempts
+      socket.auth = { sessionID }
+      // store it in the localStorage
+      localStorage.setItem('sessionID', sessionID)
+
+      // save the ID of the user
+      socket.userID = userID
+    })
+
+    socket.on('connect_error', (err) => {
+      if (err.message === 'invalid username') {
+        console.log(err.message)
+      }
+      console.log(err.message)
+    })
+
+    // socket.on('disconnect', )
+
+    return () => {
+      socket.off('connect')
+      socket.off('disconnect')
+      socket.off('message')
+    }
+  }, [socket, userName])
+
+  return activeSocket
 }

@@ -1,20 +1,23 @@
-const express = require('express')
+const express = require("express");
 
-const bcrypt = require('bcrypt')
-const jwt = require('jsonwebtoken')
-const app = express()
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const app = express();
 
-app.post('/player', (req,res) => {
+app.post("/player", (req, res) => {
+  let token = jwt.sign(
+    {
+      user: "csolano",
+    },
+    process.env.SEED,
+    { expiresIn: process.env.EXPIRATION_TOKEN }
+  );
 
-    let token = jwt.sign({
-        user: 'csolano'
-    }, process.env.SEED, { expiresIn: process.env.EXPIRATION_TOKEN })
-
-    res.json({
-        ok: true,
-        user: 'csolano',
-        token
-    })
-})
+  res.json({
+    ok: true,
+    user: "csolano",
+    token,
+  });
+});
 
 module.exports = app;
