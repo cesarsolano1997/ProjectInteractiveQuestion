@@ -5,51 +5,62 @@ const socket = io('http://localhost:4002', {
   transports: ['websocket'],
   auth: { username: 'default' },
   autoConnect: false,
+  reconnection: true,
   // connected: false,
 })
 
-export default function useSocket(userName) {
+const useSocket = (idClassroom) => {
   const [activeSocket, setActiveSocket] = useState(null)
-  // const [sessionID, setSessionID] = useState(null)
-
-  // socket.auth.username = userName
-
-  socket.auth.username = userName
+  const [usersActive, setUserActive] = useState([])
 
   useEffect(() => {
-    socket.connect()
-    socket.on('connect', () => {
-      setActiveSocket(socket)
-    })
+    const sessionID = localStorage.getItem('sessionID')
+    const userName = localStorage.getItem('name')
 
-    socket.connect()
-
-    setActiveSocket(socket) //
-    socket.on('session', ({ sessionID, userID }) => {
-      // attach the session ID to the next reconnection attempts
-      socket.auth = { sessionID }
-      // store it in the localStorage
-      localStorage.setItem('sessionID', sessionID)
-
-      // save the ID of the user
-      socket.userID = userID
-    })
-
-    socket.on('connect_error', (err) => {
-      if (err.message === 'invalid username') {
-        console.log(err.message)
+    // console.log(idClassroom)
+    if (idClassroom) {
+      // console.log(idClassroom)
+      if (sessionID) {
+        socket.auth = { sessionID, idClassroom }
+        console.log(socket.auth)
+        socket.connect()
+        setActiveSocket(socket)
+      } else {
+        if (userName) {
+          socket.auth = { userName, idClassroom }
+          socket.connect()
+          setActiveSocket(socket)
+        }
       }
-      console.log(err.message)
-    })
-
-    // socket.on('disconnect', )
-
-    return () => {
-      socket.off('connect')
-      socket.off('disconnect')
-      socket.off('message')
     }
-  }, [socket, userName])
+  }, [idClassroom])
 
-  return activeSocket
+  useEffect(() => {
+    if (activeSocket) {
+      socket.on('session', ({ sessionID, userID }) => {
+        socket.auth = { sessionID }
+        localStorage.setItem('sessionID', sessionID)
+        socket.userID = userID
+      })
+
+      socket.on('users', (users) => {
+        setUserActive(users)
+      })
+
+      socket.on('newUser', (user) => {
+        console.log(user)
+        setUserActive((prev) => prev.concat(user))
+      })
+
+      socket.on('userDisconnect', (userID) => {
+        setUserActive((users) => users.filter((user) => user.userID !== userID))
+      })
+
+      socket.emit('joinRooms', idClassroom)
+    }
+  }, [activeSocket])
+
+  return [activeSocket, usersActive]
 }
+
+export default useSocket

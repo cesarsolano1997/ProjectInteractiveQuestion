@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/router'
 
 import HttpClient from '../services'
@@ -11,6 +11,11 @@ export default function Home() {
   const [code, setCode] = useState('')
   const [openModal, setOpenModal] = useState(false)
   const [name, setName] = useState('')
+
+  useEffect(() => {
+    localStorage.removeItem('name')
+    localStorage.removeItem('sessionID')
+  }, [])
 
   const handleChange = (e) => {
     const valu = e.target.value

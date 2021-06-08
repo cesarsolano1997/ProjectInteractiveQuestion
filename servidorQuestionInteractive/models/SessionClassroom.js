@@ -2,6 +2,10 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 let sessionClassroomSchema = new Schema({
+  userId: {
+    type: String,
+    required: [true, "El userId es necesario"],
+  },
   userName: {
     type: String,
     required: [true, "El nombre del usuario es necesario"],
