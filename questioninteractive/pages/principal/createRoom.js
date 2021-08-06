@@ -17,9 +17,6 @@ const STATE_INITIAL = {
 
 export default function createRoom() {
   const submitCreateRoom = () => {
-    console.log('nameClass', nameClass)
-    console.log('hour', hour)
-
     HttpClient.post('/classroom', {
       nameClass,
       hour,
@@ -38,11 +35,11 @@ export default function createRoom() {
 
   return (
     <AppLayout>
-      <div className="bg-gray-50 h-32 flex flex-wrap justify-center content-center w-full flex-col ">
-        <h1 className="text-5xl">Crea tu propia sala</h1>
+      <div className="bg-gray-50 h-32 flex flex-wrap justify-center content-center w-full flex-col mx-2 lg:mx-0 ">
+        <h1 className="text-5xl text-center">Crea tu propia sala</h1>
       </div>
       <form onSubmit={handleSubmit}>
-        <div className="mx-96 mt-10 mobile:m-4">
+        <div className="mx-2 mt-10 lg:mx-96">
           <InputText
             name="nameClass"
             label="Nombre de la clase"
